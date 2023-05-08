@@ -1,6 +1,9 @@
 package SECTION_C;
 
 import java.util.*;
+import java.util.PriorityQueue;
+import java.util.Collections;
+
 
 
 public class RoadNavigation {
@@ -10,14 +13,11 @@ public class RoadNavigation {
         PriorityQueue<Edge> pq = new PriorityQueue<>();
         Set<Integer> visited = new HashSet<>();
 
-        for (int node : graph.keySet()) {
-            dist.put(node, Integer.MAX_VALUE);
-        }
-        dist.put(start, 0);
         pq.add(new Edge(start, 0));
+        dist.put(start, 0);
 
         while (!pq.isEmpty()) {
-            Edge curr = pq.remove();
+            Edge curr = pq.poll();
             int currNode = curr.getTo();
             int currDist = curr.getWeight();
 
@@ -31,7 +31,7 @@ public class RoadNavigation {
                 int neighborDist = neighbor.getWeight();
                 int newDist = currDist + neighborDist;
 
-                if (newDist < dist.get(neighborNode)) {
+                if (!dist.containsKey(neighborNode) || newDist < dist.get(neighborNode)) {
                     dist.put(neighborNode, newDist);
                     pq.add(new Edge(neighborNode, newDist));
                 }
@@ -46,10 +46,13 @@ public class RoadNavigation {
         List<Integer> path = new ArrayList<>();
         int distance = 0;
 
-        for (Map<String, Object> node : (List<Map<String, Object>>) roads.get("graph.nodes")) {
+        List<Map<String, Object>> nodes = (List<Map<String, Object>>) roads.get("graph.nodes");
+        for (Map<String, Object> node : nodes) {
             graph.put((int) node.get("id"), new ArrayList<>());
         }
-        for (Map<String, Object> edge : (List<Map<String, Object>>) roads.get("graph.edges")) {
+
+        List<Map<String, Object>> edges = (List<Map<String, Object>>) roads.get("graph.edges");
+        for (Map<String, Object> edge : edges) {
             int from = (int) edge.get("source");
             int to = (int) edge.get("target");
             int weight = (int) ((Map<String, Object>) edge.get("metadata")).get("distance");
@@ -90,6 +93,7 @@ public class RoadNavigation {
         Map<String, Object> graph = new HashMap<>();
         List<Map<String, Object>> nodes = new ArrayList<>();
         List<Map<String, Object>> edges = new ArrayList<>();
+
 
         nodes.add(Map.of("id", 0));
         nodes.add(Map.of("id", 1));
